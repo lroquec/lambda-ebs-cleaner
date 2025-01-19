@@ -101,18 +101,34 @@ class EBSCleaner:
         try:
             for page in paginator.paginate(OwnerIds=['self']):
                 for snapshot in page['Snapshots']:
-                    if snapshot['StartTime'] < retention_date:
-                        if self._should_delete_snapshot(snapshot):
-                            snapshots_to_delete.append({
-                                'SnapshotId': snapshot['SnapshotId'],
-                                'VolumeId': snapshot.get('VolumeId'),
-                                'Age': (datetime.now(timezone.utc) -
-                                      snapshot['StartTime']).days,
-                                'Description': snapshot.get(
-                                    'Description',
-                                    'No description'
-                                )
-                            })
+                    logger.info(
+                        'Checking snapshot %s (Volume: %s, StartTime: %s)',
+                        snapshot['SnapshotId'],
+                        snapshot.get('VolumeId', 'No Volume'),
+                        snapshot['StartTime']
+                    )
+                    
+                    # Check age first
+                    snapshot_age = (datetime.now(timezone.utc) - snapshot['StartTime']).days
+                    if snapshot_age <= self.retention_days:
+                        logger.info(
+                            'Snapshot %s is too new (age: %d days)',
+                            snapshot['SnapshotId'],
+                            snapshot_age
+                        )
+                        continue
+
+                    # Check if we should delete it
+                    if self._should_delete_snapshot(snapshot):
+                        snapshots_to_delete.append({
+                            'SnapshotId': snapshot['SnapshotId'],
+                            'VolumeId': snapshot.get('VolumeId'),
+                            'Age': snapshot_age,
+                            'Description': snapshot.get(
+                                'Description',
+                                'No description'
+                            )
+                        })
 
             logger.info('Found %d snapshots to delete', len(snapshots_to_delete))
             return snapshots_to_delete
@@ -133,18 +149,38 @@ class EBSCleaner:
         volume_id = snapshot.get('VolumeId')
 
         if not volume_id:
-            logger.info('Snapshot %s has no volume ID', snapshot['SnapshotId'])
+            logger.info(
+                'Snapshot %s marked for deletion: No volume ID',
+                snapshot['SnapshotId']
+            )
             return True
 
         try:
             volume_response = self.ec2.describe_volumes(VolumeIds=[volume_id])
-            return volume_response['Volumes'][0]['State'] == 'available'
+            volume_state = volume_response['Volumes'][0]['State']
+            
+            if volume_state == 'available':
+                logger.info(
+                    'Snapshot %s marked for deletion: Volume %s is available',
+                    snapshot['SnapshotId'],
+                    volume_id
+                )
+                return True
+            
+            logger.info(
+                'Snapshot %s kept: Volume %s is in use (state: %s)',
+                snapshot['SnapshotId'],
+                volume_id,
+                volume_state
+            )
+            return False
+            
         except ClientError as err:
             if err.response['Error']['Code'] == 'InvalidVolume.NotFound':
                 logger.info(
-                    'Volume %s not found for snapshot %s',
-                    volume_id,
-                    snapshot['SnapshotId']
+                    'Snapshot %s marked for deletion: Volume %s not found',
+                    snapshot['SnapshotId'],
+                    volume_id
                 )
                 return True
             raise
