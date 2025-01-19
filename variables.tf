@@ -14,3 +14,9 @@ variable "lambda_log_retention" {
   type        = number
   default     = 7
 }
+
+variable "s3_bucket_prefix" {
+  description = "The prefix to be used for the S3 bucket name."
+  type        = string
+  default     = "lambda-ebs-cleaner"
+}
