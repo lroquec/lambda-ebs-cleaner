@@ -40,7 +40,7 @@ def create_github_actions_role(repo_name: str, org_name: str) -> str:
                 "Action": "sts:AssumeRoleWithWebIdentity",
                 "Condition": {
                     "StringLike": {
-                        "token.actions.githubusercontent.com:sub": f"repo:{org_name}/{repo_name}:*"
+                        "token.actions.githubusercontent.com:sub": f"repo:{org_name}/*:*"
                     },
                     "StringEquals": {
                         "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
@@ -83,7 +83,9 @@ def create_github_actions_role(repo_name: str, org_name: str) -> str:
                 ],
                 "Resource": [
                     "arn:aws:s3:::ebs-cleaner-lambda-code-*",
-                    "arn:aws:s3:::ebs-cleaner-lambda-code-*/*"
+                    "arn:aws:s3:::ebs-cleaner-lambda-code-*/*",
+                    "arn:aws:s3:::lroquec-tf",
+                    "arn:aws:s3:::lroquec-tf/*"
                 ]
             },
             {
