@@ -95,7 +95,9 @@ def create_github_actions_role(repo_name: str, org_name: str) -> str:
                         "iam:DetachRolePolicy",
                         "iam:ListAttachedRolePolicies",
                         "iam:TagRole",
-                        "iam:UntagRole" 
+                        "iam:UntagRole",
+                        "iam:ListRolePolicies",
+                        "iam:ListRoleTags"
                     ],
                     "Resource": [
                         "arn:aws:iam::*:role/lambda_exec_role",

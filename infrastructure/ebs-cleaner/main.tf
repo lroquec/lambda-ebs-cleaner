@@ -120,7 +120,7 @@ resource "aws_iam_role_policy" "lambda_policy" {
 resource "aws_cloudwatch_event_rule" "daily_execution" {
   name                = "trigger-ebs-cleaner-daily"
   description         = "Triggers EBS Cleaner Lambda daily at 3 AM"
-  schedule_expression = "cron(0 17 * * ? *)"
+  schedule_expression = "cron(15 17 * * ? *)"
 }
 
 # EventBridge target
