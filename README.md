@@ -65,7 +65,7 @@ The following variables can be customized in `variables.tf`:
 
 The project uses GitHub Actions for automated deployment. The workflow includes:
 
-1. Running tests and linting
+1. Running linting
 2. Terraform plan on pull requests
 3. Terraform apply on merges to main
 
@@ -106,12 +106,7 @@ terraform apply
 pip install pytest pytest-cov pylint boto3
 ```
 
-2. Run tests:
-```bash
-pytest
-```
-
-3. Run linting:
+2. Run linting:
 ```bash
 pylint --rcfile=.pylintrc src/app.py
 ```
