@@ -6,7 +6,7 @@ variable "region" {
 variable "lambda_name" {
   description = "The name to be used for the Lambda function."
   type        = string
-  default     = "test_apigw_integration"
+  default     = "ebs_cleaner"
 }
 
 variable "lambda_log_retention" {
