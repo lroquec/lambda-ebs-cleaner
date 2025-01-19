@@ -5,7 +5,7 @@ resource "aws_s3_bucket" "lambda_bucket" {
 
 resource "aws_lambda_function" "app" {
   function_name = var.lambda_name
-  description   = "apigw-http-api serverless function"
+  description   = "ebs cleaner serverless function"
 
   s3_bucket = aws_s3_bucket.lambda_bucket.id
   s3_key    = aws_s3_object.lambda_app.key
