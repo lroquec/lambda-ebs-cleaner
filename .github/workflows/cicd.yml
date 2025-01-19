@@ -1,5 +1,10 @@
 name: EBS Cleaner CI/CD
 
+# Ensure only one workflow runs at a time
+concurrency:
+   group: ${{ github.workflow }}-${{ github.ref }}
+   cancel-in-progress: true
+
 on:
   push:
     branches: [ main ]
