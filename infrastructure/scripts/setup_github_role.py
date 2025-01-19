@@ -129,7 +129,8 @@ def create_github_actions_role(repo_name: str, org_name: str) -> str:
                         "events:RemoveTargets",
                         "events:TagResource",
                         "events:UntagResource",
-                        "events:ListTagsForResource"
+                        "events:ListTagsForResource",
+                        "events:ListTargetsByRule"
                     ],
                     "Resource": "*"
                 },
@@ -142,17 +143,18 @@ def create_github_actions_role(repo_name: str, org_name: str) -> str:
                         "lambda:GetFunction",
                         "lambda:UpdateFunctionCode",
                         "lambda:UpdateFunctionConfiguration",
-                        "lambda:PublishVersion",
-                        "lambda:DeleteFunctionConcurrency",
-                        "lambda:GetFunctionConfiguration",
+                        "lambda:AddPermission",
+                        "lambda:RemovePermission",
+                        "lambda:GetPolicy",
+                        "lambda:GetFunctionCodeSigningConfig",
+                        "lambda:PutFunctionCodeSigningConfig",
+                        "lambda:DeleteFunctionCodeSigningConfig",
+                        "lambda:ListFunctionsByCodeSigningConfig",
                         "lambda:ListVersionsByFunction",
-                        "lambda:ListTags",
-                        "lambda:TagResource",
-                        "lambda:UntagResource"
+                        "lambda:TagResource"
                     ],
                     "Resource": [
-                        "arn:aws:lambda:*:*:function:ebs-cleaner",
-                        "arn:aws:lambda:*:*:function:ebs-cleaner:*"
+                        "arn:aws:lambda:*:*:function:*"
                     ]
                 }
             ]
