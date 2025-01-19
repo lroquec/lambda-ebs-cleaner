@@ -106,17 +106,12 @@ def create_github_actions_role(repo_name: str, org_name: str) -> str:
                     "Sid": "CloudWatchLogsPermissions",
                     "Effect": "Allow",
                     "Action": [
-                        "logs:CreateLogGroup",
-                        "logs:DeleteLogGroup",
-                        "logs:DescribeLogGroups",
-                        "logs:PutRetentionPolicy",
-                        "logs:TagResource",
-                        "logs:UntagResource",
-                        "logs:ListTagsForResource",
-                        "logs:TagLogGroup",
-                        "logs:UntagLogGroup" 
+                        "logs:*"
                     ],
-                    "Resource": "*"
+                    "Resource": [
+                        "arn:aws:logs:*:*:/aws/lambda/*",
+                        "arn:aws:logs:*:*:*"
+                    ]
                 },
                 {
                     "Sid": "EventBridgePermissions",
