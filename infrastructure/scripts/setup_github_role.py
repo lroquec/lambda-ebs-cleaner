@@ -62,96 +62,74 @@ def create_github_actions_role(repo_name: str, org_name: str) -> str:
         role = iam.get_role(RoleName=role_name)
 
     # Attach required permissions
-    policy = {
-        "Version": "2012-10-17",
-        "Statement": [
-            {
-                "Sid": "S3Permissions",
-                "Effect": "Allow",
-                "Action": [
-                    "s3:CreateBucket",
-                    "s3:DeleteBucket",
-                    "s3:GetBucketPolicy",
-                    "s3:PutBucketPolicy",
-                    "s3:ListBucket",
-                    "s3:PutObject",
-                    "s3:GetObject",
-                    "s3:DeleteObject",
-                    "s3:PutBucketVersioning",
-                    "s3:PutBucketEncryption",
-                    "s3:PutPublicAccessBlock"
-                ],
-                "Resource": [
-                    "arn:aws:s3:::ebs-cleaner-lambda-code-*",
-                    "arn:aws:s3:::ebs-cleaner-lambda-code-*/*",
-                    "arn:aws:s3:::lroquec-tf",
-                    "arn:aws:s3:::lroquec-tf/*"
-                ]
-            },
-            {
-                "Sid": "LambdaPermissions",
-                "Effect": "Allow",
-                "Action": [
-                    "lambda:CreateFunction",
-                    "lambda:DeleteFunction",
-                    "lambda:GetFunction",
-                    "lambda:UpdateFunctionCode",
-                    "lambda:UpdateFunctionConfiguration",
-                    "lambda:AddPermission",
-                    "lambda:RemovePermission",
-                    "lambda:GetPolicy"
-                ],
-                "Resource": "arn:aws:lambda:*:*:function:ebs_cleaner"
-            },
-            {
-                "Sid": "IAMPermissions",
-                "Effect": "Allow",
-                "Action": [
-                    "iam:CreateRole",
-                    "iam:DeleteRole",
-                    "iam:GetRole",
-                    "iam:PutRolePolicy",
-                    "iam:DeleteRolePolicy",
-                    "iam:GetRolePolicy",
-                    "iam:PassRole"
-                ],
-                "Resource": "arn:aws:iam::*:role/ebs_cleaner_lambda_role"
-            },
-            {
-                "Sid": "EventBridgePermissions",
-                "Effect": "Allow",
-                "Action": [
-                    "events:PutRule",
-                    "events:DeleteRule",
-                    "events:DescribeRule",
-                    "events:PutTargets",
-                    "events:RemoveTargets"
-                ],
-                "Resource": "arn:aws:events:*:*:rule/trigger-ebs-cleaner-daily"
-            },
-            {
-                "Sid": "CloudWatchLogsPermissions",
-                "Effect": "Allow",
-                "Action": [
-                    "logs:CreateLogGroup",
-                    "logs:DeleteLogGroup",
-                    "logs:DescribeLogGroups",
-                    "logs:PutRetentionPolicy"
-                ],
-                "Resource": "arn:aws:logs:*:*:/aws/lambda/ebs_cleaner"
-            },
-            {
-                "Sid": "TerraformStateCheck",
-                "Effect": "Allow",
-                "Action": [
-                    "s3:ListAllMyBuckets",
-                    "s3:GetBucketLocation",
-                    "s3:ListBucket"
-                ],
-                "Resource": "*"
-            }
-        ]
-    }
+        policy = {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Sid": "S3Permissions",
+                    "Effect": "Allow",
+                    "Action": [
+                        "s3:*"
+                    ],
+                    "Resource": [
+                        f"arn:aws:s3:::{role_name}-*",
+                        f"arn:aws:s3:::{role_name}-*/*",
+                        "arn:aws:s3:::lroquec-tf",
+                        "arn:aws:s3:::lroquec-tf/*",
+                        "arn:aws:s3:::lambda-ebs-cleaner*",
+                        "arn:aws:s3:::lambda-ebs-cleaner*/*"
+                    ]
+                },
+                {
+                    "Sid": "IAMPermissions",
+                    "Effect": "Allow",
+                    "Action": [
+                        "iam:CreateRole",
+                        "iam:DeleteRole",
+                        "iam:GetRole",
+                        "iam:PutRolePolicy",
+                        "iam:DeleteRolePolicy",
+                        "iam:GetRolePolicy",
+                        "iam:PassRole",
+                        "iam:AttachRolePolicy",
+                        "iam:DetachRolePolicy",
+                        "iam:ListAttachedRolePolicies"
+                    ],
+                    "Resource": [
+                        "arn:aws:iam::*:role/lambda_exec_role",
+                        "arn:aws:iam::*:role/ebs_cleaner_lambda_role"
+                    ]
+                },
+                {
+                    "Sid": "CloudWatchLogsPermissions",
+                    "Effect": "Allow",
+                    "Action": [
+                        "logs:CreateLogGroup",
+                        "logs:DeleteLogGroup",
+                        "logs:DescribeLogGroups",
+                        "logs:PutRetentionPolicy",
+                        "logs:TagResource",
+                        "logs:UntagResource"
+                    ],
+                    "Resource": "*"
+                },
+                {
+                    "Sid": "EventBridgePermissions",
+                    "Effect": "Allow",
+                    "Action": [
+                        "events:PutRule",
+                        "events:DeleteRule",
+                        "events:DescribeRule",
+                        "events:PutTargets",
+                        "events:RemoveTargets",
+                        "events:TagResource",
+                        "events:UntagResource",
+                        "events:ListTagsForResource"
+                    ],
+                    "Resource": "*"
+                }
+            ]
+        }
 
     iam.put_role_policy(
         RoleName=role_name,
