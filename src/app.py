@@ -1,4 +1,4 @@
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 import logging
 from typing import Set, Dict, List, Optional
 
@@ -38,7 +38,7 @@ class EBSCleaner:
             for page in paginator.paginate(Filters=[{'Name': 'status', 'Values': ['available']}]):
                 for volume in page['Volumes']:
                     age_days = (datetime.now(timezone.utc) - volume['CreateTime']).days
-                    
+
                     if self.retention_days is not None and age_days <= self.retention_days:
                         logger.info('Volume %s skipped: Too new (age: %d days)', volume['VolumeId'], age_days)
                         continue
@@ -62,22 +62,20 @@ class EBSCleaner:
         try:
             for page in paginator.paginate(OwnerIds=['self']):
                 for snapshot in page['Snapshots']:
-                    logger.info(
-                        'Checking snapshot %s (Volume: %s, StartTime: %s)',
-                        snapshot['SnapshotId'],
-                        snapshot.get('VolumeId', 'No Volume'),
-                        snapshot['StartTime']
-                    )
-                    
+                    snap_id = snapshot['SnapshotId']
+                    vol_id = snapshot.get('VolumeId', 'No Volume')
+                    logger.info('Checking snapshot %s (Volume: %s, StartTime: %s)',
+                              snap_id, vol_id, snapshot['StartTime'])
+
                     snapshot_age = (datetime.now(timezone.utc) - snapshot['StartTime']).days
 
                     if self.retention_days is not None and snapshot_age <= self.retention_days:
-                        logger.info('Snapshot %s skipped: Too new (age: %d days)', snapshot['SnapshotId'], snapshot_age)
+                        logger.info('Snapshot %s skipped: Too new (age: %d days)', snap_id, snapshot_age)
                         continue
 
                     if self._should_delete_snapshot(snapshot):
                         snapshots_to_delete.append({
-                            'SnapshotId': snapshot['SnapshotId'],
+                            'SnapshotId': snap_id,
                             'VolumeId': snapshot.get('VolumeId'),
                             'Age': snapshot_age,
                             'Description': snapshot.get('Description', 'No description')
@@ -99,17 +97,20 @@ class EBSCleaner:
         try:
             volume_response = self.ec2.describe_volumes(VolumeIds=[volume_id])
             volume_state = volume_response['Volumes'][0]['State']
-            
+
             if volume_state == 'available':
-                logger.info('Snapshot %s marked for deletion: Volume %s is available', snapshot['SnapshotId'], volume_id)
+                logger.info('Snapshot %s marked for deletion: Volume %s is available',
+                          snapshot['SnapshotId'], volume_id)
                 return True
-            
-            logger.info('Snapshot %s kept: Volume %s is in use (state: %s)', snapshot['SnapshotId'], volume_id, volume_state)
+
+            logger.info('Snapshot %s kept: Volume %s is in use (state: %s)',
+                       snapshot['SnapshotId'], volume_id, volume_state)
             return False
-            
+
         except ClientError as err:
             if err.response['Error']['Code'] == 'InvalidVolume.NotFound':
-                logger.info('Snapshot %s marked for deletion: Volume %s not found', snapshot['SnapshotId'], volume_id)
+                logger.info('Snapshot %s marked for deletion: Volume %s not found',
+                          snapshot['SnapshotId'], volume_id)
                 return True
             raise
 
@@ -117,7 +118,7 @@ class EBSCleaner:
         for volume in volumes:
             try:
                 self.ec2.delete_volume(VolumeId=volume['VolumeId'])
-                logger.info('Deleted volume %s, Size: %sGB, Age: %s days', 
+                logger.info('Deleted volume %s, Size: %sGB, Age: %s days',
                           volume['VolumeId'], volume['Size'], volume['Age'])
             except ClientError as err:
                 logger.error('Error deleting volume %s: %s', volume['VolumeId'], str(err))
@@ -132,7 +133,8 @@ class EBSCleaner:
                 if err.response['Error']['Code'] == 'InvalidSnapshot.InUse':
                     logger.warning('Snapshot %s is in use, skipping deletion', snapshot['SnapshotId'])
                 else:
-                    logger.error('Error deleting snapshot %s: %s', snapshot['SnapshotId'], str(err))
+                    logger.error('Error deleting snapshot %s: %s',
+                               snapshot['SnapshotId'], str(err))
 
 
 def lambda_handler(event: Dict, _context: Dict) -> Dict:
