@@ -39,7 +39,7 @@ jobs:
 
       - name: Run linting
         run: |
-          pylint src/app.py
+          pylint --rcfile=.pylintrc src/app.py
           
   terraform-plan:
     name: Terraform Plan

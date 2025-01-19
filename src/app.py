@@ -202,7 +202,7 @@ class EBSCleaner:
                     )
 
 
-def lambda_handler(event: Dict, context: Dict) -> Dict:
+def lambda_handler(_event: Dict, _context: Dict) -> Dict:
     """
     Main Lambda handler for EBS volume and snapshot cleanup.
 
