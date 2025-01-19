@@ -13,7 +13,6 @@ terraform {
       version = "~> 2.2.0"
     }
   }
-  required_version = "~> 1.7.0"
 
   backend "s3" {
     bucket = "lroquec-tf"
