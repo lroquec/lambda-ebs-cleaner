@@ -93,7 +93,9 @@ def create_github_actions_role(repo_name: str, org_name: str) -> str:
                         "iam:PassRole",
                         "iam:AttachRolePolicy",
                         "iam:DetachRolePolicy",
-                        "iam:ListAttachedRolePolicies"
+                        "iam:ListAttachedRolePolicies",
+                        "iam:TagRole",
+                        "iam:UntagRole" 
                     ],
                     "Resource": [
                         "arn:aws:iam::*:role/lambda_exec_role",
@@ -109,7 +111,10 @@ def create_github_actions_role(repo_name: str, org_name: str) -> str:
                         "logs:DescribeLogGroups",
                         "logs:PutRetentionPolicy",
                         "logs:TagResource",
-                        "logs:UntagResource"
+                        "logs:UntagResource",
+                        "logs:ListTagsForResource",
+                        "logs:TagLogGroup",
+                        "logs:UntagLogGroup" 
                     ],
                     "Resource": "*"
                 },
