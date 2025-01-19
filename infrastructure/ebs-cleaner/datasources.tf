@@ -4,6 +4,6 @@ data "aws_region" "current" {}
 
 data "archive_file" "lambda_zip" {
   type        = "zip"
-  output_path = "${path.module}/src.zip"
-  source_dir  = "${path.module}/src"
+  output_path = "../../${path.module}/src.zip"
+  source_dir  = "../../${path.module}/src"
 }

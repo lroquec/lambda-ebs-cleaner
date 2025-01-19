@@ -4,13 +4,13 @@ on:
   push:
     branches: [ main ]
     paths:
-      - 'terraform/**'
+      - 'infrastructure/**'
       - 'src/**'
       - '.github/workflows/**'
   pull_request:
     branches: [ main ]
     paths:
-      - 'terraform/**'
+      - 'infrastructure/**'
       - 'src/**'
       - '.github/workflows/**'
 
@@ -55,27 +55,29 @@ jobs:
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
-
+          role-session-name: GitHubActions-${{ github.run_id }}
+          audience: sts.amazonaws.com
+          
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ env.TERRAFORM_VERSION }}
 
       - name: Terraform Format
+        working-directory: infrastructure/ebs-cleaner
         run: terraform fmt -check -recursive
-        working-directory: terraform
 
       - name: Terraform Init
+        working-directory: infrastructure/ebs-cleaner
         run: terraform init
-        working-directory: terraform
 
       - name: Terraform Validate
+        working-directory: infrastructure/ebs-cleaner
         run: terraform validate
-        working-directory: terraform
 
       - name: Terraform Plan
+        working-directory: infrastructure/ebs-cleaner
         run: terraform plan -no-color
-        working-directory: terraform
         
   deploy:
     name: Deploy
@@ -91,6 +93,8 @@ jobs:
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
+          role-session-name: GitHubActions-${{ github.run_id }}
+          audience: sts.amazonaws.com
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -98,9 +102,9 @@ jobs:
           terraform_version: ${{ env.TERRAFORM_VERSION }}
 
       - name: Terraform Init
+        working-directory: infrastructure/ebs-cleaner
         run: terraform init
-        working-directory: terraform
 
       - name: Terraform Apply
+        working-directory: infrastructure/ebs-cleaner
         run: terraform apply -auto-approve
-        working-directory: terraform
