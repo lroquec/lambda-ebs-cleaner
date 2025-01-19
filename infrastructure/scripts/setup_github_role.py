@@ -132,6 +132,28 @@ def create_github_actions_role(repo_name: str, org_name: str) -> str:
                         "events:ListTagsForResource"
                     ],
                     "Resource": "*"
+                },
+                {
+                    "Sid": "LambdaPermissions",
+                    "Effect": "Allow",
+                    "Action": [
+                        "lambda:CreateFunction",
+                        "lambda:DeleteFunction",
+                        "lambda:GetFunction",
+                        "lambda:UpdateFunctionCode",
+                        "lambda:UpdateFunctionConfiguration",
+                        "lambda:PublishVersion",
+                        "lambda:DeleteFunctionConcurrency",
+                        "lambda:GetFunctionConfiguration",
+                        "lambda:ListVersionsByFunction",
+                        "lambda:ListTags",
+                        "lambda:TagResource",
+                        "lambda:UntagResource"
+                    ],
+                    "Resource": [
+                        "arn:aws:lambda:*:*:function:ebs-cleaner",
+                        "arn:aws:lambda:*:*:function:ebs-cleaner:*"
+                    ]
                 }
             ]
         }
