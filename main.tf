@@ -64,7 +64,7 @@ resource "aws_cloudwatch_log_group" "lambda_log" {
 }
 
 resource "aws_iam_role" "lambda_role" {
-  name                 = "lambda_exec_role"
+  name = "lambda_exec_role"
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
